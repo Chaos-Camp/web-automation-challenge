@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UUID Automation Challenge</title>
+    <style>
+        /* Center the root element */
+        #root {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Span styles */
+        span {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Description styles */
+        .description {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 400px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+        }
+    </style>
+    <script>
+        function setUUID(targetElement) {
+            const uuid = generateUUID();
+            targetElement.innerText = uuid;
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function changeColor(event) {
+            event.target.style.backgroundColor = "green";
+            event.target.style.color = "white";
+        }
+
+        function createRandomNesting(parentElement, level) {
+            if (level === 0) {
+                const span = document.createElement('span');
+                span.addEventListener('dblclick', changeColor);
+                parentElement.appendChild(span);
+                setUUID(span);
+                return;
+            }
+
+            const nestingTypes = ['div', 'shadow'];
+            const randomType = nestingTypes[Math.floor(Math.random() * nestingTypes.length)];
+
+            if (randomType === 'div') {
+                const div = document.createElement('div');
+                parentElement.appendChild(div);
+                createRandomNesting(div, level - 1);
+            } else if (randomType === 'shadow') {
+                const shadowHost = document.createElement('div');
+                const shadowRoot = shadowHost.attachShadow({mode: 'open'});
+                parentElement.appendChild(shadowHost);
+                createRandomNesting(shadowRoot, level - 1);
+            }
+        }
+
+        function rerender() {
+            const root = document.getElementById('root');
+            while (root.firstChild) {
+                root.removeChild(root.firstChild);
+            }
+            const nestingLevel = Math.floor(Math.random() * 11) + 10;
+            createRandomNesting(root, nestingLevel);
+        }
+
+        window.onload = function() {
+            rerender();
+            // setInterval(rerender, 5000); // Re-renders every 5 seconds
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Description of the challenge -->
+    <div class="description">
+        <strong>Web Automation Challenge</strong>
+        <p>This page generates a UUID inside a span element.</p>
+        <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID double click it and assert the span style is green, this tests need to re-run with a 100% success rate.</p>
+    </div>
+</body>
+</html>
