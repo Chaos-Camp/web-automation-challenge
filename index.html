@@ -11,13 +11,18 @@
             align-items: center;
             height: 100vh;
         }
-
+    
         /* Span styles */
         span {
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-size: calc(10px + 2vmin); /* Dynamic font size */
+            width: 50vw;  /* Dynamic width based on viewport */
+            text-align: center;
+            display: block;  /* Allows text centering */
+            word-wrap: break-word;  /* Allows text to wrap */
         }
-
+    
         /* Description styles */
         .description {
             position: fixed;
@@ -30,6 +35,7 @@
             box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
         }
     </style>
+    
     <script>
         function setUUID(targetElement) {
             const uuid = generateUUID();
@@ -93,6 +99,7 @@
     <!-- Description of the challenge -->
     <div class="description">
         <strong>Web Automation Challenge</strong>
+        <span><span></span></span>
         <p>This page generates a UUID inside a span element.</p>
         <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID double click it and assert the span style is green, this tests need to re-run with a 100% success rate.</p>
     </div>
