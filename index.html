@@ -7,11 +7,12 @@
         /* Center the root element */
         #root {
             display: flex;
+            flex-direction: column; /* Stack children vertically */
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
-    
+
         /* Span styles */
         span {
             cursor: pointer;
@@ -21,8 +22,14 @@
             text-align: center;
             display: block;  /* Allows text centering */
             word-wrap: break-word;  /* Allows text to wrap */
+            margin: 5px 0; /* Spacing between elements */
         }
-    
+
+        /* Input and select styles */
+        input, select {
+            margin: 5px 0; /* Spacing between elements */
+        }
+
         /* Description styles */
         .description {
             position: fixed;
@@ -35,7 +42,7 @@
             box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
         }
     </style>
-    
+
     <script>
         function setUUID(targetElement) {
             const uuid = generateUUID();
@@ -54,28 +61,37 @@
             event.target.style.color = "white";
         }
 
-        function createRandomNesting(parentElement, level) {
-            if (level === 0) {
-                const span = document.createElement('span');
-                span.addEventListener('dblclick', changeColor);
-                parentElement.appendChild(span);
-                setUUID(span);
-                return;
-            }
+        function createRandomElements(parentElement) {
+            // Always create the span with UUID
+            const uuidSpan = document.createElement('span');
+            uuidSpan.addEventListener('dblclick', changeColor);
+            setUUID(uuidSpan);
+            parentElement.appendChild(uuidSpan);
 
-            const nestingTypes = ['div', 'shadow'];
-            const randomType = nestingTypes[Math.floor(Math.random() * nestingTypes.length)];
-
-            if (randomType === 'div') {
-                const div = document.createElement('div');
-                parentElement.appendChild(div);
-                createRandomNesting(div, level - 1);
-            } else if (randomType === 'shadow') {
-                const shadowHost = document.createElement('div');
-                const shadowRoot = shadowHost.attachShadow({mode: 'open'});
-                parentElement.appendChild(shadowHost);
-                createRandomNesting(shadowRoot, level - 1);
-            }
+            // Randomly create other elements
+            const elementTypes = ['span', 'input-checkbox', 'input-field', 'select-option'];
+            elementTypes.forEach(type => {
+                if (type === 'span') {
+                    const span = document.createElement('span');
+                    span.textContent = 'Just a span';
+                    parentElement.appendChild(span);
+                } else if (type === 'input-checkbox') {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    parentElement.appendChild(checkbox);
+                } else if (type === 'input-field') {
+                    const inputField = document.createElement('input');
+                    inputField.type = 'text';
+                    parentElement.appendChild(inputField);
+                } else if (type === 'select-option') {
+                    const select = document.createElement('select');
+                    const option = document.createElement('option');
+                    option.value = 'option1';
+                    option.text = 'Option 1';
+                    select.appendChild(option);
+                    parentElement.appendChild(select);
+                }
+            });
         }
 
         function rerender() {
@@ -83,8 +99,7 @@
             while (root.firstChild) {
                 root.removeChild(root.firstChild);
             }
-            const nestingLevel = Math.floor(Math.random() * 11) + 10;
-            createRandomNesting(root, nestingLevel);
+            createRandomElements(root);
         }
 
         window.onload = function() {
@@ -99,9 +114,8 @@
     <!-- Description of the challenge -->
     <div class="description">
         <strong>Web Automation Challenge</strong>
-        <span><span></span></span>
-        <p>This page generates a UUID inside a span element.</p>
-        <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID double click it and assert the span style is green, this tests need to re-run with a 100% success rate.</p>
+        <p>This page generates a UUID inside a span element and adds other various elements.</p>
+        <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID, double click it and assert the span style is green. Ensure the test can re-run with a 100% success rate. Other elements such as spans, input fields, checkboxes, and select options are also present.</p>
     </div>
 </body>
 </html>
