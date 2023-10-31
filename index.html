@@ -4,45 +4,37 @@
     <meta charset="UTF-8">
     <title>UUID Automation Challenge</title>
     <style>
-        /* Center the root element */
-        #root {
-            display: flex;
-            flex-direction: column; /* Stack children vertically */
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        /* Base styles for elements */
+        .nested {
+            padding: 5px;
+            border: 1px solid #ddd;
+            margin: 5px;
+            border-radius: 3px;
         }
-
+    
         /* Span styles */
-        span {
+        span, .wrapper {
             cursor: pointer;
             transition: background-color 0.3s ease;
-            font-size: calc(10px + 2vmin); /* Dynamic font size */
-            width: 50vw;  /* Dynamic width based on viewport */
+            font-size: calc(10px + 2vmin);
             text-align: center;
-            display: block;  /* Allows text centering */
-            word-wrap: break-word;  /* Allows text to wrap */
+            display: block;
             margin: 5px 0; /* Spacing between elements */
         }
-
-        /* Input and select styles */
-        input, select {
-            margin: 5px 0; /* Spacing between elements */
-        }
-
+    
         /* Description styles */
         .description {
             position: fixed;
             bottom: 10px;
             left: 10px;
-            width: 400px;
+            width: 300px;
             background-color: #f9f9f9;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
         }
     </style>
-
+    
     <script>
         function setUUID(targetElement) {
             const uuid = generateUUID();
@@ -61,61 +53,83 @@
             event.target.style.color = "white";
         }
 
-        function createRandomElements(parentElement) {
-            // Always create the span with UUID
-            const uuidSpan = document.createElement('span');
-            uuidSpan.addEventListener('dblclick', changeColor);
-            setUUID(uuidSpan);
-            parentElement.appendChild(uuidSpan);
-
-            // Randomly create other elements
-            const elementTypes = ['span', 'input-checkbox', 'input-field', 'select-option'];
-            elementTypes.forEach(type => {
-                if (type === 'span') {
-                    const span = document.createElement('span');
-                    span.textContent = 'Just a span';
-                    parentElement.appendChild(span);
-                } else if (type === 'input-checkbox') {
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    parentElement.appendChild(checkbox);
-                } else if (type === 'input-field') {
-                    const inputField = document.createElement('input');
-                    inputField.type = 'text';
-                    parentElement.appendChild(inputField);
-                } else if (type === 'select-option') {
-                    const select = document.createElement('select');
-                    const option = document.createElement('option');
-                    option.value = 'option1';
-                    option.text = 'Option 1';
-                    select.appendChild(option);
-                    parentElement.appendChild(select);
+        function createRandomNesting(parentElement, level, includeUUID) {
+            if (level === 0) {
+                if (includeUUID) {
+                    const uuidSpan = document.createElement('span');
+                    uuidSpan.addEventListener('dblclick', changeColor);
+                    setUUID(uuidSpan);
+                    parentElement.appendChild(uuidSpan);
+                    includeUUID = false; // Ensure only one UUID span is created
                 }
-            });
+
+                // Randomly add other types of elements
+                const otherElements = ['checkbox', 'text', 'select'];
+                otherElements.forEach(type => {
+                    const wrapperSpan = document.createElement('span');
+                    wrapperSpan.className = 'wrapper';
+                    if (type === 'checkbox') {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        wrapperSpan.appendChild(checkbox);
+                    } else if (type === 'text') {
+                        const textField = document.createElement('input');
+                        textField.type = 'text';
+                        wrapperSpan.appendChild(textField);
+                    } else if (type === 'select') {
+                        const select = document.createElement('select');
+                        const option = document.createElement('option');
+                        option.value = 'option1';
+                        option.text = 'Option 1';
+                        select.appendChild(option);
+                        wrapperSpan.appendChild(select);
+                    }
+                    parentElement.appendChild(wrapperSpan);
+                });
+                return;
+            }
+
+            // Create a new div or shadow root for nesting
+            const nestingTypes = ['div', 'shadow'];
+            const randomType = nestingTypes[Math.floor(Math.random() * nestingTypes.length)];
+            const newElement = document.createElement('div');
+            newElement.className = 'nested';
+
+            if (randomType === 'div') {
+                parentElement.appendChild(newElement);
+            } else if (randomType === 'shadow') {
+                const shadowHost = document.createElement('div');
+                const shadowRoot = shadowHost.attachShadow({mode: 'open'});
+                shadowRoot.appendChild(newElement);
+                parentElement.appendChild(shadowHost);
+            }
+            createRandomNesting(newElement, level - 1, includeUUID);
         }
 
         function rerender() {
-            const root = document.getElementById('root');
-            while (root.firstChild) {
-                root.removeChild(root.firstChild);
-            }
-            createRandomElements(root);
+            // Clear the body first
+            document.body.innerHTML = '';
+            // Create a new div to act as the root for nesting
+            const newRoot = document.createElement('div');
+            document.body.appendChild(newRoot);
+            // Start the random nesting with UUID span included
+            createRandomNesting(newRoot, Math.floor(Math.random() * 5) + 5, true);
+
+            // Add the description div back after clearing
+            const descriptionDiv = document.createElement('div');
+            descriptionDiv.className = 'description';
+            descriptionDiv.innerHTML = `
+                <strong>Web Automation Challenge</strong>
+                <p>This page generates a UUID inside a span element which is nested within random elements, with inputs and selects wrapped in spans.</p>
+                <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID, double click it, and assert the span style is green. The test should re-run with a 100% success rate.</p>
+            `;
+            document.body.appendChild(descriptionDiv);
         }
 
-        window.onload = function() {
-            rerender();
-            // setInterval(rerender, 5000); // Re-renders every 5 seconds
-        }
+        window.onload = rerender;
     </script>
 </head>
 <body>
-    <div id="root"></div>
-
-    <!-- Description of the challenge -->
-    <div class="description">
-        <strong>Web Automation Challenge</strong>
-        <p>This page generates a UUID inside a span element and adds other various elements.</p>
-        <p><strong>Challenge:</strong> Automate the process to find the span containing the UUID, double click it and assert the span style is green. Ensure the test can re-run with a 100% success rate. Other elements such as spans, input fields, checkboxes, and select options are also present.</p>
-    </div>
+    <!-- The body content will be dynamically created by the rerender function -->
 </body>
 </html>
